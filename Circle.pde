@@ -1,33 +1,39 @@
 class Circle {
  
   
-  PVector location = new PVector(0,0);
-  PVector velocity = new PVector(0,0);
-  PVector acceleration;
-  
-  Circle() {
-    location = new PVector(random(0,width-1), random(0,height-1));
-  }
+  PVector location     = new PVector(random(0,width-1), random(0,height-1));
+  PVector velocity     = new PVector(randomGaussian()*3, randomGaussian()*3);
+  PVector acceleration = new PVector(0,0);
+  PVector force        = new PVector(0,0); 
   
   void update(){
     location.add(velocity);
-    //acceleration = new PVector(random(-.5,.5), random(-.5, .5));
-    //acceleration = randomMousePerlin();
-    acceleration = randomMouseGaussian();
+    //acceleration = randomMouseGaussian();
     velocity.add(acceleration);
+    acceleration.add(force);
     velocity.limit(5);
-    if (location.x > width) {
-      location.x = 0;
+    if ( location.x < 0 || location.x > width) {
+      velocity = new PVector(-velocity.x, velocity.y);
     }
-    else if( location.x < 0) {
-     location.x = width; 
+    else if( location.y < 0 || location.y > height) {
+      velocity = new PVector(velocity.x, -velocity.y);
     }
-    else if( location.y > height) {
-     location.y = 0; 
-    }
-    else if (location.y < 0 ) {
-     location.y = height; 
-    }
+  }
+  
+  void addForce(PVector force) {
+   this.force.add(force); 
+  }
+  
+  void addLocation() {
+    location.add(velocity);  
+  }
+  
+  void addAcceleration() {
+    velocity.add(acceleration);
+  }
+  
+  void addForce() {
+    acceleration.add(force);
   }
   
   PVector randomMouse() {
@@ -45,5 +51,12 @@ class Circle {
   PVector randomMousePerlin() {
    PVector p = new PVector(noise(mouseX), noise(mouseY));
    return p;
+  }
+  
+  PVector accelerateToMouse() {
+   PVector m = new PVector(mouseX, mouseY);
+   m.sub(location);
+   m.setMag(1);
+   return m;
   }
 }
